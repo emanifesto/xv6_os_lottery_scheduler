@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->tickets = 1; //initalize tickets
 
   release(&ptable.lock);
 
@@ -199,6 +200,7 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+  np->tickets = curproc->tickets; // child process gets same # of tickets as parent 
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -309,6 +311,17 @@ wait(void)
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
+}
+
+int
+settickets(int number)
+{
+  struct proc *p = myproc();
+  if (number > 0){
+    p->tickets = number;
+    return 0;
+  }
+  return -1;
 }
 
 //PAGEBREAK: 42
