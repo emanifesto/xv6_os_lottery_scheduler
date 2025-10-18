@@ -313,6 +313,7 @@ wait(void)
   }
 }
 
+// Allows current process running on CPU to increase ticket count
 int
 settickets(int number)
 {
