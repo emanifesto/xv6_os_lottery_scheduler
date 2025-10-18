@@ -349,9 +349,6 @@ scheduler(void)
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
-
-      cprintf("running pid: %d\n", p->pid); //log running process
-
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
@@ -404,7 +401,6 @@ yield(void)
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE;
   sched();
-  cprintf("pid yielding: %d\n", myproc()->pid); //log running process
   release(&ptable.lock);
 }
 
