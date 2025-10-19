@@ -15,18 +15,10 @@ struct {
 
 static struct proc *initproc;
 
-//initializes pstat object to all default values
-struct pstat *ps;
-for (int i = 0; i < NPROC; i++) {
-    ps->inuse[i] = 0;
-    ps->tickets[i] = 0;
-    ps->pid[i] = 0;
-    ps->ticks[i] = 0;
-};
-
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
+extern int random(int max); //access to random function defined in random.c file
 
 static void wakeup1(void *chan);
 
@@ -99,6 +91,7 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p->tickets = 1; //initalize tickets
+  p->ticks = 0;   //initialize ticks
 
   release(&ptable.lock);
 
@@ -306,6 +299,8 @@ wait(void)
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
+        p->tickets = 0;
+        p->ticks = 0;
         p->state = UNUSED;
         release(&ptable.lock);
         return pid;
@@ -356,25 +351,60 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+
+    // Checks the number of processes that can participate in lottery
+    int players = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state == RUNNABLE){
+        players++;
+      }
+    }
+
+    // Picks winner using random function
+    int winner = random(players);
+    int player = 0;
+
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
+      
+      // Skips through all runnable processes that are not the lottery winner
+      if(player != winner){
+        player++;
+        continue;
+      }  
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
       c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
 
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
+      // Runs lottery winner for a time slice proportional to its number of tickets
+      int i;
+      for(i = 0; i < p->tickets; i++){
+        p->ticks = 1 + p->ticks; // Increments the time slices a process has run in each iteration
+        switchuvm(p);
+        p->state = RUNNING;
+
+        swtch(&(c->scheduler), p->context);
+        switchkvm();
+      }
+
+      // Each process switches it ticket number after it finishes running
+      // Other my beautiful settickets function would be unused
+      // Max of 10 tickets; Min of 1 ticket
+      if(i = settickets(1 + random(10)) == -1){
+        ; // Don't really know what to do if this fails; to be fair it should never fail though
+      }
+        
 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
-    }
-    release(&ptable.lock);
 
+      // moved up lock release and added break to fully remove round robin functionality
+      release(&ptable.lock);
+      break;
+    }
   }
 }
 
