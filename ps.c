@@ -3,8 +3,7 @@
 #include "types.h"
 #include "stat.h"
 #include "user.h"
-
-extern int getpinfo(struct pstat *ps);
+#include "proc.c"
 
 // Prints out state of process table to console
 int
