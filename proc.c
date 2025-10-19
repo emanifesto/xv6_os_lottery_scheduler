@@ -330,6 +330,32 @@ settickets(int number)
   return -1;
 }
 
+// pstat struct is passed in and filled with features of each process in the ptable
+int
+getpinfo(struct pstat *ps)
+{
+  struct proc *p;
+  int index = 0;
+
+  // Locks and loops through process table to fill pstat
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    ps->pid[index] = p->pid;
+    ps->tickets[index] = p->tickets;
+    ps->ticks[index] = p->ticks;
+
+    // inuse is set to 1 except if the state of current process is UNUSED
+    if (p->state == UNUSED){
+      ps->inuse[index++] = 0;
+      continue;
+    }
+    ps->inuse[index++] = 1;
+  }
+  release(&ptable.lock);
+  return 0;
+}
+
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
