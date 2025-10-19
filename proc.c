@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "pstat.h"
 
 struct {
   struct spinlock lock;
@@ -13,6 +14,15 @@ struct {
 } ptable;
 
 static struct proc *initproc;
+
+//initializes pstat object to all default values
+struct pstat *ps;
+for (int i = 0; i < NPROC; i++) {
+    ps->inuse[i] = 0;
+    ps->tickets[i] = 0;
+    ps->pid[i] = 0;
+    ps->ticks[i] = 0;
+};
 
 int nextpid = 1;
 extern void forkret(void);
