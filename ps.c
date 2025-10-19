@@ -1,5 +1,6 @@
 #include "pstat.h"
 #include "param.h"
+#include "user.h"
 
 extern int getpinfo(struct pstat *ps);
 
@@ -8,7 +9,7 @@ int
 main()
 {
     struct pstat *ps;
-    getpinfo(&ps);
+    getpinfo(ps);
     int i;
     printf("%10s%10s%10s%10s\n", "PID", "Inuse", "Tickets", "Ticks");
     for(i = 0; i < NPROC; i++){
