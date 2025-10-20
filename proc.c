@@ -418,7 +418,7 @@ scheduler(void)
       // Each process switches it ticket number after it finishes running
       // Other my beautiful settickets function would be unused
       // Max of 10 tickets; Min of 1 ticket
-      if(i = settickets(1 + random(10)) == -1){
+      if((i = settickets(1 + random(10))) == -1){
         ; // Don't really know what to do if this fails; to be fair it should never fail though
       }
         
