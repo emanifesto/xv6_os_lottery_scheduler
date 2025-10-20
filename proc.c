@@ -338,21 +338,21 @@ getpinfo(struct pstat *ps)
     return -1;
   }
   struct proc *p;
-  int index = 0;
 
   // Locks and loops through process table to fill pstat
   acquire(&ptable.lock);
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    ps->pid[index] = p->pid;
-    ps->tickets[index] = p->tickets;
-    ps->ticks[index] = p->ticks;
+  int i = 0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++, i++){
+    ps->pid[i] = p->pid;
+    ps->tickets[i] = p->tickets;
+    ps->ticks[i] = p->ticks;
 
     // inuse is set to 1 except if the state of current process is UNUSED
     if (p->state == UNUSED){
-      ps->inuse[index++] = 0;
+      ps->inuse[i++] = 0;
       continue;
     }
-    ps->inuse[index++] = 1;
+    ps->inuse[i] = 1;
   }
   release(&ptable.lock);
   return 0;
