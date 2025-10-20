@@ -390,6 +390,11 @@ scheduler(void)
     }
 
     // Picks winner using random function
+    if (players == 0){
+      release(&ptable.lock);
+      continue;
+    }
+    
     int winner = random(players);
     int player = 0;
 
