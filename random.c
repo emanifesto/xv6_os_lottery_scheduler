@@ -1,3 +1,5 @@
+#include "random.h"
+
 static unsigned int randstate = 1;
 
 unsigned int rand(void) {

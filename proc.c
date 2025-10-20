@@ -7,6 +7,7 @@
 #include "proc.h"
 #include "spinlock.h"
 #include "pstat.h"
+#include "random.h"
 
 struct {
   struct spinlock lock;
@@ -18,7 +19,6 @@ static struct proc *initproc;
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
-extern int random(int max); //access to random function defined in random.c file
 
 static void wakeup1(void *chan);
 
