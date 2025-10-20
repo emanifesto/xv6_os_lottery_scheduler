@@ -3,7 +3,6 @@
 #include "types.h"
 #include "stat.h"
 #include "user.h"
-#include "proc.c"
 
 // Prints out state of process table to console
 int
