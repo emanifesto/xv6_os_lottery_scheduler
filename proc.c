@@ -334,6 +334,9 @@ settickets(int number)
 int
 getpinfo(struct pstat *ps)
 {
+  if (!ps){
+    return -1;
+  }
   struct proc *p;
   int index = 0;
 
