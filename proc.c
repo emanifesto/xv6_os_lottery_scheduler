@@ -415,10 +415,12 @@ scheduler(void)
       // Runs lottery winner for a time slice proportional to its number of tickets
       int i;
       for(i = 0; i < p->tickets; i++){
-        // if(p->state != RUNNABLE){
-        //   release(&ptable.lock);
-        //   break;
-        // }
+
+        // Attempt to fix bug where an exit gets called and halts entire
+        if(p->state != RUNNABLE){
+          break;
+        }
+
         p->ticks = 1 + p->ticks; // Increments the time slices a process has run in each iteration
         switchuvm(p);
         p->state = RUNNING;
